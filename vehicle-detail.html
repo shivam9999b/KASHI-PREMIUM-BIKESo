@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>गाड़ी डिटेल - वाराणसी Vehicles</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/detail.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-ghat"></i>
+                <span>वाराणसी <span class="highlight">Vehicles</span></span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> होम</a></li>
+                <li><a href="listings.html"><i class="fas fa-list"></i> सभी गाड़ियाँ</a></li>
+                <li><a href="post-vehicle.html"><i class="fas fa-plus-circle"></i> गाड़ी डालें</a></li>
+                <li id="authNav"><a href="login.html" class="btn-nav">लॉगिन</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <section class="detail-section">
+        <div class="container">
+            <div id="loadingDetail" style="text-align:center;padding:60px;">
+                <i class="fas fa-spinner fa-spin" style="font-size:2.5rem;color:#d4a373;"></i>
+                <p style="margin-top:15px;color:#888;">डिटेल लोड हो रही...</p>
+            </div>
+
+            <div id="detailContent" style="display:none;">
+                <a href="listings.html" class="back-link"><i class="fas fa-arrow-left"></i> वापस लिस्टिंग पर</a>
+
+                <div class="detail-grid">
+                    <div class="detail-image">
+                        <img id="detailImg" src="#" alt="Vehicle" />
+                    </div>
+
+                    <div class="detail-info">
+                        <span class="badge" id="detailType">🏍️ बाइक</span>
+                        <h1 id="detailTitle">Honda Activa 2023</h1>
+                        <p class="detail-price" id="detailPrice">₹45,000</p>
+
+                        <div class="detail-meta-grid">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>मॉडल: <strong id="detailYear">2023</strong></span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>किमी: <strong id="detailKm">12,000</strong></span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-user-tie"></i>
+                                <span>मालिक: <strong id="detailOwnership">पहली</strong></span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-gas-pump"></i>
+                                <span>फ्यूल: <strong id="detailFuel">पेट्रोल</strong></span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>शहर: <strong id="detailCity">वाराणसी</strong></span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span>डाली: <strong id="detailDate">2 दिन पहले</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="detail-description">
+                            <h3><i class="fas fa-align-left"></i> विवरण</h3>
+                            <p id="detailDesc">बहुत अच्छी कंडीशन, सिंगल ओनर, सभी पेपर्स अपडेटेड हैं।</p>
+                        </div>
+
+                        <div class="detail-contact">
+                            <h3><i class="fas fa-phone"></i> संपर्क करें</h3>
+                            <div class="contact-buttons">
+                                <a href="#" id="detailPhone" class="btn-contact call">
+                                    <i class="fas fa-phone"></i> कॉल करें
+                                </a>
+                                <a href="#" id="detailWhatsapp" class="btn-contact whatsapp">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp
+                                </a>
+                            </div>
+                            <p class="contact-note"><i class="fas fa-shield-alt"></i> सुरक्षित लेन-देन के लिए हमेशा गाड़ी चेक करें</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>© 2026 वाराणसी Vehicles | Made with ❤️ in Kashi</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { db } from './js/firebase.js';
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { auth } from './js/firebase.js';
+
+        // ===== AUTH =====
+        onAuthStateChanged(auth, (user) => {
+            const nav = document.getElementById('authNav');
+            if (user) {
+                nav.innerHTML = `<a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> लॉगआउट</a>`;
+                document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                    auth.signOut();
+                    window.location.href = 'index.html';
+                });
+            }
+        });
+
+        // ===== GET VEHICLE ID FROM URL =====
+        const urlParams = new URLSearchParams(window.location.search);
+        const vehicleId = urlParams.get('id');
+
+        if (!vehicleId) {
+            document.getElementById('loadingDetail').innerHTML = `
+                <i class="fas fa-exclamation-triangle" style="font-size:2.5rem;color:#e74c3c;"></i>
+                <p style="color:#e74c3c;">❌ कोई गाड़ी सेलेक्ट नहीं की गई</p>
+                <a href="listings.html" class="btn-primary" style="display:inline-block;margin-top:15px;">लिस्टिंग देखें</a>
+            `;
+        } else {
+            loadVehicleDetail(vehicleId);
+        }
+
+        // ===== LOAD DETAIL =====
+        async function loadVehicleDetail(id) {
+            try {
+                const snap = await getDoc(doc(db, 'vehicles', id));
+
+                if (!snap.exists()) {
+                    document.getElementById('loadingDetail').innerHTML = `
+                        <i class="fas fa-exclamation-triangle" style="font-size:2.5rem;color:#e74c3c;"></i>
+                        <p style="color:#e74c3c;">❌ यह गाड़ी मौजूद नहीं है</p>
+                        <a href="listings.html" class="btn-primary" style="display:inline-block;margin-top:15px;">लिस्टिंग देखें</a>
+                    `;
+                    return;
+                }
+
+                const data = snap.data();
+
+                // Populate
+                document.getElementById('detailImg').src = data.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
+                document.getElementById('detailType').textContent = data.type === 'bike' ? '🏍️ बाइक' : '🚗 कार';
+                document.getElementById('detailType').className = `badge ${data.type}`;
+                document.getElementById('detailTitle').textContent = data.title || 'No Title';
+                document.getElementById('detailPrice').textContent = `₹${(data.price || 0).toLocaleString()}`;
+                document.getElementById('detailYear').textContent = data.year || 'N/A';
+                document.getElementById('detailKm').textContent = (data.km || 0).toLocaleString() + ' km';
+                document.getElementById('detailOwnership').textContent = {
+                    'first': 'पहली मालिक',
+                    'second': 'दूसरी मालिक',
+                    'third': 'तीसरी मालिक',
+                    'fourth+': 'चौथी या ज्यादा'
+                } [data.ownership] || data.ownership || 'N/A';
+                document.getElementById('detailFuel').textContent = {
+                    'petrol': 'पेट्रोल',
+                    'diesel': 'डीजल',
+                    'electric': 'इलेक्ट्रिक',
+                    'cng': 'CNG'
+                } [data.fuel] || data.fuel || 'N/A';
+                document.getElementById('detailCity').textContent = data.city || 'वाराणसी';
+                document.getElementById('detailDesc').textContent = data.description || 'कोई विवरण नहीं';
+
+                // Date
+                const date = new Date(data.timestamp);
+                const now = new Date();
+                const diff = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+                document.getElementById('detailDate').textContent = diff === 0 ? 'आज' : diff === 1 ? '1 दिन पहले' : diff + ' दिन पहले';
+
+                // Contact
+                const phone = data.phone || '';
+                const whatsapp = data.whatsapp || phone;
+                document.getElementById('detailPhone').href = `tel:${phone}`;
+                document.getElementById('detailWhatsapp').href = `https://wa.me/91${whatsapp.replace(/\s/g, '')}`;
+
+                // Show content
+                document.getElementById('loadingDetail').style.display = 'none';
+                document.getElementById('detailContent').style.display = 'block';
+
+            } catch (error) {
+                document.getElementById('loadingDetail').innerHTML = `
+                    <i class="fas fa-exclamation-triangle" style="font-size:2.5rem;color:#e74c3c;"></i>
+                    <p style="color:#e74c3c;">❌ लोड करने में त्रुटि: ${error.message}</p>
+                    <a href="listings.html" class="btn-primary" style="display:inline-block;margin-top:15px;">लिस्टिंग देखें</a>
+                `;
+            }
+        }
+
+        // ===== HAMBURGER =====
+        document.getElementById('hamburger').addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
