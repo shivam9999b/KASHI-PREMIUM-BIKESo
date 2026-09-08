@@ -118,7 +118,7 @@ async function initLatestListings() {
 // ===== CATEGORY FILTERS =====
 function initCategoryFilters() {
     window.filterCategory = (type) => {
-        window.location.href = `listings.html?filter=${type}`;
+        window.location.href = `listing.html?filter=${type}`;
     };
 }
 
